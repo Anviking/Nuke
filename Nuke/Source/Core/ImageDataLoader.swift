@@ -7,7 +7,7 @@ import Foundation
 // MARK: - ImageDataLoading
 
 public typealias ImageDataLoadingCompletion = (data: NSData?, response: NSURLResponse?, error: ErrorType?) -> Void
-public typealias ImageDataLoadingProgress = (completed: Int64, total: Int64) -> Void
+public typealias ImageDataLoadingProgress = (data: NSData?, completed: Int64, total: Int64) -> Void
 
 /** Performs loading of image data.
  */
@@ -88,7 +88,7 @@ public class ImageDataLoader: NSObject, NSURLSessionDataDelegate, ImageDataLoadi
         dispatch_sync(self.queue) {
             if let handler = self.handlers[dataTask] {
                 handler.data.appendData(data)
-                handler.progress(completed: dataTask.countOfBytesReceived, total: dataTask.countOfBytesExpectedToReceive)
+                handler.progress(data: data, completed: dataTask.countOfBytesReceived, total: dataTask.countOfBytesExpectedToReceive)
             }
         }
     }

@@ -55,6 +55,10 @@ public class ImageTask: Hashable {
     /** A progress closure that gets periodically during the lifecycle of the task.
      */
     public var progressHandler: ((progress: ImageTaskProgress) -> Void)?
+
+    /*! Progressive image handler which gets called on the main thread when partial image data is decoded.
+    */
+    public var progressiveImageHandler: ((image: Image) -> Void)?
     
     public init(request: ImageRequest, identifier: Int) {
         self.request = request

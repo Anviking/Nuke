@@ -224,8 +224,8 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
     
     private func dataTaskWith(request: ImageRequest, key: ImageRequestKey) -> ImageDataTask {
         let dataTask = ImageDataTask(key: key)
-        dataTask.URLSessionTask = self.configuration.dataLoader.taskWith(request, progress: { [weak self] completed, total in
-            self?.dataTask(dataTask, didUpdateProgress: ImageTaskProgress(completed: completed, total: total))
+        dataTask.URLSessionTask = self.configuration.dataLoader.taskWith(request, progress: { [weak self] data, completed, total in
+            self?.dataTask(dataTask, didUpdateProgress: ImageTaskProgress(completed: completed, total: total), data: data)
         }, completion: { [weak self] data, response, error in
             self?.dataTask(dataTask, didCompleteWithData: data, response: response, error: error)
         })
@@ -235,7 +235,7 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
         return dataTask
     }
     
-    private func dataTask(dataTask: ImageDataTask, didUpdateProgress progress: ImageTaskProgress) {
+    private func dataTask(dataTask: ImageDataTask, didUpdateProgress progress: ImageTaskProgress, data: NSData?) {
         dispatch_async(self.queue) {
             dataTask.progress = progress
             for task in dataTask.tasks {
