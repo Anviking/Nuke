@@ -74,3 +74,19 @@ public class ImageDecoderComposition: ImageDecoding {
         return nil
     }
 }
+
+/** Implements progressive image decoding. Decodes received data at a given thresholds (percentage of total data). If it can't keep up with a rate at which it receives data, it might skip some of the thresholds.
+ */
+internal class ProgressiveImageDecoder {
+    private let decoder: ImageDecoding
+    private let queue: NSOperationQueue
+    private let threshold: Float
+    private let totalBytesCount: Int64
+
+    internal init(decoder: ImageDecoding, queue: NSOperationQueue, threshold: Float, totalBytesCount: Int64) {
+        self.decoder = decoder
+        self.queue = queue
+        self.threshold = threshold
+        self.totalBytesCount = totalBytesCount
+    }
+}

@@ -69,6 +69,10 @@ public struct ImageLoaderConfiguration {
     /** Determines whether image loader should prevent excessive creation and resuming of session tasks, limiting the pressure on the system. Default value is true.
      */
     public var congestionControlEnabled = true
+
+    /** Determines whether progressive image decoding is enabled. Default value is false.
+     */
+    public static var progressiveImageDecodingEnabled = true
     
     /**
      Initializes configuration with data loader and image decoder.
@@ -240,6 +244,9 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
             dataTask.progress = progress
             for task in dataTask.tasks {
                 self.manager?.loader(self, task: task, didUpdateProgress: dataTask.progress)
+            }
+            guard ImageLoaderConfiguration.progressiveImageDecodingEnabled else {
+                return
             }
         }
     }
