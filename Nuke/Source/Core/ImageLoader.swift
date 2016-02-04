@@ -73,7 +73,11 @@ public struct ImageLoaderConfiguration {
     /** Determines whether progressive image decoding is enabled. Default value is false.
      */
     public static var progressiveImageDecodingEnabled = true
-    
+
+    /** The task progress threshold at which received data is decoded. Default value is 0.15, which means that the received data will be decoded each time next 15% of total bytes is received.
+    */
+    public var progressiveImageDecodingThreshold: Double = 0.15
+
     /**
      Initializes configuration with data loader and image decoder.
      
@@ -248,6 +252,28 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
             guard ImageLoaderConfiguration.progressiveImageDecodingEnabled else {
                 return
             }
+            guard progress.completed < progress.total else {
+                dataTask.progressiveDecoder?.invalidate()
+                return
+            }
+            var decoder: ProgressiveImageDecoder! = dataTask.progressiveDecoder
+            if decoder == nil {
+                let conf = self.configuration
+                decoder = ProgressiveImageDecoder(decoder: conf.decoder, queue: conf.decodingQueue, threshold: conf.progressiveImageDecodingThreshold, totalByteCount: progress.total)
+                decoder.handler = { [weak self] _ in
+                    // TODO: Process image
+                }
+                dataTask.progressiveDecoder = decoder
+            }
+            if let data = data {
+                decoder.append(data)
+                for task in dataTask.executingTasks {
+                    if task.progressiveImageHandler != nil && task.request.allowsProgressiveImageDecoding {
+                        decoder.resume()
+                        break
+                    }
+                }
+            }
         }
     }
     
@@ -372,7 +398,8 @@ private class ImageDataTask {
         return self.executingTasks.union(self.suspendedTasks)
     }
     var progress: ImageTaskProgress = ImageTaskProgress()
-    
+    var progressiveDecoder: ProgressiveImageDecoder?
+
     init(key: ImageRequestKey) {
         self.key = key
     }

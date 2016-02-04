@@ -150,7 +150,6 @@ internal class ProgressiveImageDecoder {
         let data = self.data.copy() as! NSData
         self.lock.unlock()
 
-        // TODO: Pass response
         if let image = self.decoder.decode(data, response: nil), handler = handler {
             handler(image: image)
         }
