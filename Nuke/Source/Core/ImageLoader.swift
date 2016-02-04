@@ -50,6 +50,8 @@ public protocol ImageLoadingManager: class {
     /** Send when loading for task is completed.
      */
     func loader(loader: ImageLoading, task: ImageTask, didCompleteWithImage image: Image?, error: ErrorType?, userInfo: Any?)
+
+    func loader(loader: ImageLoading, task: ImageTask, didProduceProgressiveImage image: Image)
 }
 
 // MARK: - ImageLoaderConfiguration
@@ -277,7 +279,19 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
     }
 
     private func dataTask(dataTask: ImageDataTask, didDecodeProgressiveImage image: Image) {
-        print("decoded \(image)")
+        dispatch_async(self.queue) {
+            for task in dataTask.tasks {
+                if let processor = self.delegate.loader(self, processorFor:task.request, image: image) {
+                    self.configuration.processingQueue.addOperationWithBlock { [weak self] in
+                        if let strongSelf = self, image = processor.process(image) {
+                            strongSelf.manager?.loader(strongSelf, task: task, didProduceProgressiveImage: image)
+                        }
+                    }
+                } else {
+                    self.manager?.loader(self, task: task, didProduceProgressiveImage: image)
+                }
+            }
+        }
     }
     
     private func dataTask(dataTask: ImageDataTask, didCompleteWithData data: NSData?, response: NSURLResponse?, error: ErrorType?) {

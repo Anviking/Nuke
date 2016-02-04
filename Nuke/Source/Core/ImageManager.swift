@@ -293,6 +293,11 @@ extension ImageManager: ImageLoadingManager {
         }
         self.perform { self.setState(.Completed, forTask: task) }
     }
+
+    public func loader(loader: ImageLoading, task: ImageTask, didProduceProgressiveImage image: Image) {
+        print("123")
+        // TODO:
+    }
 }
 
 // MARK: ImageManager: ImageTaskManaging
