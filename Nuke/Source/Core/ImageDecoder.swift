@@ -82,11 +82,32 @@ internal class ProgressiveImageDecoder {
     private let queue: NSOperationQueue
     private let threshold: Float
     private let totalBytesCount: Int64
+    internal var handler: ((image: Image) -> Void)?
+
+    private var executing = false
+    private var decoding = false
+    private var decodedByteCount: Int64 = 0
+    private let data = NSMutableData()
+    private let lock = NSRecursiveLock()
 
     internal init(decoder: ImageDecoding, queue: NSOperationQueue, threshold: Float, totalBytesCount: Int64) {
         self.decoder = decoder
         self.queue = queue
         self.threshold = threshold
         self.totalBytesCount = totalBytesCount
+    }
+
+    internal func append(data: NSData) {
+
+    }
+
+    /** Resumes decoding, safe to be called multiple times.
+     */
+    internal func resume() {
+
+    }
+
+    internal func invalidate() {
+
     }
 }
