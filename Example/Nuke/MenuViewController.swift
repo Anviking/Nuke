@@ -68,6 +68,13 @@ class MenuViewController: UITableViewController {
             self?.navigationController?.pushViewController(controller, animated: true)
         }
         items.append(item4)
+
+        let item5 = MenuItem(title: "Progressive Decoding") { [weak self] in
+            let controller = ProgressiveImageViewController(collectionViewLayout: UICollectionViewFlowLayout())
+            controller.title = "Progressive Decoding"
+            self?.navigationController?.pushViewController(controller, animated: true)
+        }
+        items.append(item5)
         
         sections.append(MenuSection(title: "Nuke", items: items))
     }

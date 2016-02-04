@@ -105,7 +105,7 @@ public protocol ImageLoaderDelegate {
     
     /** Returns processor for the given request and image.
      *     */
-    func loader(loader: ImageLoader, processorFor: ImageRequest, image: Image) -> ImageProcessing?
+    func loader(loader: ImageLoader, processorFor request: ImageRequest, image: Image) -> ImageProcessing?
 }
 
 /** Default implementation of ImageLoaderDelegate.
@@ -259,22 +259,25 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
             var decoder: ProgressiveImageDecoder! = dataTask.progressiveDecoder
             if decoder == nil {
                 let conf = self.configuration
-                decoder = ProgressiveImageDecoder(decoder: conf.decoder, queue: conf.decodingQueue, threshold: conf.progressiveImageDecodingThreshold, totalByteCount: progress.total)
-                decoder.handler = { [weak self] _ in
-                    // TODO: Process image
+                decoder = ProgressiveImageDecoder(decoder: conf.decoder, queue: conf.decodingQueue, threshold: conf.progressiveImageDecodingThreshold, totalByteCount: progress.total) { [weak self] in
+                    self?.dataTask(dataTask, didDecodeProgressiveImage: $0)
                 }
                 dataTask.progressiveDecoder = decoder
             }
             if let data = data {
                 decoder.append(data)
                 for task in dataTask.executingTasks {
-                    if task.progressiveImageHandler != nil && task.request.allowsProgressiveImageDecoding {
+                    if task.request.allowsProgressiveImageDecoding {
                         decoder.resume()
                         break
                     }
                 }
             }
         }
+    }
+
+    private func dataTask(dataTask: ImageDataTask, didDecodeProgressiveImage image: Image) {
+        print("decoded \(image)")
     }
     
     private func dataTask(dataTask: ImageDataTask, didCompleteWithData data: NSData?, response: NSURLResponse?, error: ErrorType?) {
