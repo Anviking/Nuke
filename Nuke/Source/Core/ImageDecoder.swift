@@ -78,36 +78,87 @@ public class ImageDecoderComposition: ImageDecoding {
 /** Implements progressive image decoding. Decodes received data at a given thresholds (percentage of total data). If it can't keep up with a rate at which it receives data, it might skip some of the thresholds.
  */
 internal class ProgressiveImageDecoder {
-    private let decoder: ImageDecoding
-    private let queue: NSOperationQueue
-    private let threshold: Float
-    private let totalBytesCount: Int64
     internal var handler: ((image: Image) -> Void)?
 
-    private var executing = false
-    private var decoding = false
+    private let decoder: ImageDecoding
+    private let queue: NSOperationQueue
+    private let threshold: Double
+    private let totalByteCount: Int64
+
+    private var isExecuting = false
+    private var isDecoding = false
     private var decodedByteCount: Int64 = 0
     private let data = NSMutableData()
     private let lock = NSRecursiveLock()
 
-    internal init(decoder: ImageDecoding, queue: NSOperationQueue, threshold: Float, totalBytesCount: Int64) {
+    internal init(decoder: ImageDecoding, queue: NSOperationQueue, threshold: Double, totalByteCount: Int64) {
         self.decoder = decoder
         self.queue = queue
         self.threshold = threshold
-        self.totalBytesCount = totalBytesCount
-    }
-
-    internal func append(data: NSData) {
-
+        self.totalByteCount = totalByteCount
     }
 
     /** Resumes decoding, safe to be called multiple times.
      */
     internal func resume() {
-
+        self.lock.lock()
+        if !self.isExecuting {
+            self.isExecuting = true
+            self.decodeIfNeeded()
+        }
+        self.lock.unlock()
     }
 
     internal func invalidate() {
+        self.lock.lock()
+        self.isExecuting = false
+        self.lock.unlock()
+    }
 
+    internal func append(data: NSData) {
+        if data.length > 0 {
+            self.lock.lock()
+            self.data.appendData(data)
+            self.decodeIfNeeded()
+            self.lock.unlock()
+        }
+    }
+
+    private func decodeIfNeeded() {
+        if self.isDecoding || !self.isExecuting {
+            return
+        }
+        if Int64(self.data.length) < self.decodedByteCount {
+            return
+        }
+        if self.totalByteCount > 0 {
+            if ((Double(self.data.length) / Double(self.totalByteCount)) - (Double(self.decodedByteCount) / Double(self.totalByteCount)) < self.threshold) {
+                return;
+            }
+        }
+        self.isDecoding = true
+        self.queue.addOperationWithBlock { [weak self] in
+            self?.decode()
+        }
+    }
+
+    private func decode() {
+        if !self.isExecuting {
+            return;
+        }
+        self.lock.lock()
+        let data = self.data.copy() as! NSData
+        self.lock.unlock()
+
+        // TODO: Pass response
+        if let image = self.decoder.decode(data, response: nil), handler = handler {
+            handler(image: image)
+        }
+
+        self.lock.lock()
+        self.decodedByteCount = Int64(data.length)
+        self.isDecoding = false
+        self.decodeIfNeeded()
+        self.lock.unlock()
     }
 }
