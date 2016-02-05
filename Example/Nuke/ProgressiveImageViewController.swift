@@ -19,13 +19,13 @@ class ProgressiveImageViewController: UICollectionViewController, UICollectionVi
     var segmentedControl: UISegmentedControl!
 
     deinit {
-        ImageLoaderConfiguration.progressiveImageDecodingEnabled = false
+        ImageLoaderConfiguration.progressiveDecodingEnabled = false
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        ImageLoaderConfiguration.progressiveImageDecodingEnabled = true
+        ImageLoaderConfiguration.progressiveDecodingEnabled = true
 
         let segmentedControl = UISegmentedControl(items: ["progressive", "baseline"])
         segmentedControl.selectedSegmentIndex = 0
@@ -50,7 +50,7 @@ class ProgressiveImageViewController: UICollectionViewController, UICollectionVi
         let imageURL = self.currentDataSource[indexPath.row]
 
         var request = ImageRequest(URL: imageURL, targetSize: ImageMaximumSize, contentMode: .AspectFill)
-        request.allowsProgressiveImageDecoding = true
+        request.progressiveDecodingEnabled = true
 
         cell.setImageWith(request)
 
@@ -85,6 +85,8 @@ private class ImageCell: UICollectionViewCell {
         super.init(frame: frame)
 
         self.backgroundColor = UIColor(white: 235.0 / 255.0, alpha: 1)
+        self.imageView.contentMode = .ScaleAspectFill
+        self.imageView.clipsToBounds = true
 
         self.addSubview(self.imageView)
         self.addSubview(self.progressView)
@@ -120,6 +122,9 @@ private class ImageCell: UICollectionViewCell {
                     self?.progressView.alpha = 0
                 }
             }
+        }
+        task.progressiveImageHandler = { [weak self] in
+            self?.imageView.image = $0
         }
         if task.state == .Completed {
             self.progressView.alpha = 0

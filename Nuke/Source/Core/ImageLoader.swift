@@ -72,13 +72,13 @@ public struct ImageLoaderConfiguration {
      */
     public var congestionControlEnabled = true
 
-    /** Determines whether progressive image decoding is enabled. Default value is false.
+    /** Determines whether progressive decoding is enabled. Default value is false.
      */
-    public static var progressiveImageDecodingEnabled = true
+    public static var progressiveDecodingEnabled = true
 
     /** The task progress threshold at which received data is decoded. Default value is 0.15, which means that the received data will be decoded each time next 15% of total bytes is received.
     */
-    public var progressiveImageDecodingThreshold: Double = 0.15
+    public var progressiveDecodingThreshold: Double = 0.15
 
     /**
      Initializes configuration with data loader and image decoder.
@@ -251,45 +251,14 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
             for task in dataTask.tasks {
                 self.manager?.loader(self, task: task, didUpdateProgress: dataTask.progress)
             }
-            guard ImageLoaderConfiguration.progressiveImageDecodingEnabled else {
-                return
-            }
-            guard progress.completed < progress.total else {
-                dataTask.progressiveDecoder?.invalidate()
-                return
-            }
-            var decoder: ProgressiveImageDecoder! = dataTask.progressiveDecoder
-            if decoder == nil {
-                let conf = self.configuration
-                decoder = ProgressiveImageDecoder(decoder: conf.decoder, queue: conf.decodingQueue, threshold: conf.progressiveImageDecodingThreshold, totalByteCount: progress.total) { [weak self] in
-                    self?.dataTask(dataTask, didDecodeProgressiveImage: $0)
-                }
-                dataTask.progressiveDecoder = decoder
-            }
-            if let data = data {
-                decoder.append(data)
-                for task in dataTask.executingTasks {
-                    if task.request.allowsProgressiveImageDecoding {
-                        decoder.resume()
-                        break
+            if ImageLoaderConfiguration.progressiveDecodingEnabled {
+                if dataTask.progressiveDecoder == nil {
+                    let conf = self.configuration
+                    dataTask.progressiveDecoder = ProgressiveDecoder(decoder: conf.decoder, queue: conf.decodingQueue, threshold: conf.progressiveDecodingThreshold, totalByteCount: progress.total) { [weak self] in
+                        self?.dataTask(dataTask, didDecodePortionOf: $0)
                     }
                 }
-            }
-        }
-    }
-
-    private func dataTask(dataTask: ImageDataTask, didDecodeProgressiveImage image: Image) {
-        dispatch_async(self.queue) {
-            for task in dataTask.tasks {
-                if let processor = self.delegate.loader(self, processorFor:task.request, image: image) {
-                    self.configuration.processingQueue.addOperationWithBlock { [weak self] in
-                        if let strongSelf = self, image = processor.process(image) {
-                            strongSelf.manager?.loader(strongSelf, task: task, didProduceProgressiveImage: image)
-                        }
-                    }
-                } else {
-                    self.manager?.loader(self, task: task, didProduceProgressiveImage: image)
-                }
+                self.dataTask(dataTask, decodePortionOf: data, progress: progress)
             }
         }
     }
@@ -304,7 +273,7 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
             self?.dataTask(dataTask, didCompleteWithImage: image, error: (image == nil ? errorWithCode(.DecodingFailed) : nil))
         }
     }
-    
+
     private func dataTask(dataTask: ImageDataTask, didCompleteWithImage image: Image?, error: ErrorType?) {
         dispatch_async(self.queue) {
             for task in dataTask.tasks {
@@ -356,9 +325,9 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
     private func _cancelLoadingFor(task: ImageTask) {
         if let state = self.loadStates[task] {
             switch state {
-            case .Loading(let sessionTask):
-                if sessionTask.cancel(task) {
-                    self.remove(sessionTask)
+            case .Loading(let dataTask):
+                if dataTask.cancel(task) {
+                    self.remove(dataTask)
                 }
             case .Processing(let operation):
                 operation.cancel()
@@ -415,7 +384,7 @@ private class ImageDataTask {
         return self.executingTasks.union(self.suspendedTasks)
     }
     var progress: ImageTaskProgress = ImageTaskProgress()
-    var progressiveDecoder: ProgressiveImageDecoder?
+    var progressiveDecoder: ProgressiveDecoder?
 
     init(key: ImageRequestKey) {
         self.key = key
@@ -519,6 +488,38 @@ private class CongestionController {
             let task = self.pendingTasks.removeFirst()
             self.delegate?._resumeLoadingFor(task)
             self.setNeedsExecutePendingTasks()
+        }
+    }
+}
+
+// MARK: - ImageLoader: Progressive Decoding
+
+private extension ImageLoader {
+    private func dataTask(dataTask: ImageDataTask, decodePortionOf data: NSData?, progress: ImageTaskProgress) {
+        guard progress.completed < progress.total else {
+            return
+        }
+        if let data = data, decoder = dataTask.progressiveDecoder {
+            decoder.append(data)
+            if dataTask.executingTasks.contains({return $0.request.progressiveDecodingEnabled}) {
+                decoder.resume()
+            }
+        }
+    }
+
+    private func dataTask(dataTask: ImageDataTask, didDecodePortionOf image: Image) {
+        dispatch_async(self.queue) {
+            for task in dataTask.tasks {
+                if let processor = self.delegate.loader(self, processorFor:task.request, image: image) {
+                    self.configuration.processingQueue.addOperationWithBlock { [weak self] in
+                        if let strongSelf = self, image = processor.process(image) {
+                            strongSelf.manager?.loader(strongSelf, task: task, didProduceProgressiveImage: image)
+                        }
+                    }
+                } else {
+                    self.manager?.loader(self, task: task, didProduceProgressiveImage: image)
+                }
+            }
         }
     }
 }

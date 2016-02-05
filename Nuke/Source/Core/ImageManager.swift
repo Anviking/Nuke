@@ -295,8 +295,11 @@ extension ImageManager: ImageLoadingManager {
     }
 
     public func loader(loader: ImageLoading, task: ImageTask, didProduceProgressiveImage image: Image) {
-        print("123")
-        // TODO:
+        dispatch_async(dispatch_get_main_queue()) {
+            if let handler = task.progressiveImageHandler {
+                handler(image: image)
+            }
+        }
     }
 }
 

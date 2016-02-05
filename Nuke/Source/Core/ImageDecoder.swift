@@ -75,9 +75,9 @@ public class ImageDecoderComposition: ImageDecoding {
     }
 }
 
-/** Implements progressive image decoding. Decodes received data at a given thresholds (percentage of total data). If it can't keep up with a rate at which it receives data, it might skip some of the thresholds.
+/** Implements progressive decoding. Decodes received data at a given thresholds (levels, percentage of total data). If decoder can't keep up with a rate at which it receives data, it might skip some of the thresholds.
  */
-internal class ProgressiveImageDecoder {
+internal class ProgressiveDecoder {
     private let decoder: ImageDecoding
     private let queue: NSOperationQueue
     private let threshold: Double
@@ -96,7 +96,6 @@ internal class ProgressiveImageDecoder {
         self.threshold = threshold
         self.totalByteCount = totalByteCount
         self.handler = handler
-
     }
 
     /** Resumes decoding, safe to be called multiple times.
@@ -152,7 +151,11 @@ internal class ProgressiveImageDecoder {
         self.lock.unlock()
 
         if let image = self.decoder.decode(data, response: nil) {
-            self.handler(image: image)
+            self.lock.lock()
+            if self.isExecuting {
+                self.handler(image: image)
+            }
+            self.lock.unlock()
         }
 
         self.lock.lock()
