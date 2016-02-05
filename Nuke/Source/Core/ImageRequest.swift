@@ -70,6 +70,8 @@ public struct ImageRequest {
     /** If true the received data is decoded progressively. Image manager calls `progressiveImageHandler` for each decoded image. Default value is false.
      
      You should also set `progressiveDecodingEnabled` on the `ImageLoaderConfiguration` to true.
+     
+     Progressive decoding is supported by JPEG, PNG and GIF image formats.
      */
     public var progressiveDecodingEnabled = false
     
