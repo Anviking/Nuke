@@ -240,7 +240,7 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
         dataTask.URLSessionTask = self.configuration.dataLoader.taskWith(request, progress: { [weak self] data, completed, total in
             self?.dataTask(dataTask, didUpdateProgress: ImageTaskProgress(completed: completed, total: total), data: data)
         }, completion: { [weak self] data, response, error in
-            self?.dataTask(dataTask, didCompleteWithData: data, response: response, error: error)
+            self?.dataTask(dataTask, didCompleteWith: data, response: response, error: error)
         })
         #if !os(OSX)
         dataTask.URLSessionTask?.priority = request.priority
@@ -266,18 +266,18 @@ public class ImageLoader: ImageLoading, CongestionControllerDelegate {
         }
     }
     
-    private func dataTask(dataTask: ImageDataTask, didCompleteWithData data: NSData?, response: NSURLResponse?, error: ErrorType?) {
+    private func dataTask(dataTask: ImageDataTask, didCompleteWith data: NSData?, response: NSURLResponse?, error: ErrorType?) {
         guard error == nil, let data = data else {
-            self.dataTask(dataTask, didCompleteWithImage: nil, error: error)
+            self.dataTask(dataTask, didCompleteWith: nil, error: error)
             return;
         }
         self.configuration.decodingQueue.addOperationWithBlock { [weak self] in
             let image = self?.configuration.decoder.decode(data, response: response)
-            self?.dataTask(dataTask, didCompleteWithImage: image, error: (image == nil ? errorWithCode(.DecodingFailed) : nil))
+            self?.dataTask(dataTask, didCompleteWith: image, error: (image == nil ? errorWithCode(.DecodingFailed) : nil))
         }
     }
 
-    private func dataTask(dataTask: ImageDataTask, didCompleteWithImage image: Image?, error: ErrorType?) {
+    private func dataTask(dataTask: ImageDataTask, didCompleteWith image: Image?, error: ErrorType?) {
         dispatch_async(self.queue) {
             for task in dataTask.tasks {
                 if let image = image, processor = self.delegate.loader(self, processorFor:task.request, image: image) {
