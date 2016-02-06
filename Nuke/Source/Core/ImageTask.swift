@@ -56,7 +56,7 @@ public class ImageTask: Hashable {
      */
     public var progressHandler: ((progress: ImageTaskProgress) -> Void)?
 
-    /*! Progressive image handler which gets called on the main thread when partial image data is decoded.
+    /*! A closure that gets called on the main thread each time image manager produces an image for a new progressive level.
     */
     public var progressiveImageHandler: ((image: Image) -> Void)?
     

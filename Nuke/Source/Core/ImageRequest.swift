@@ -67,7 +67,8 @@ public struct ImageRequest {
      */
     public var shouldDecompressImage = true
 
-    /** If true the received data is decoded progressively. Image manager calls `progressiveImageHandler` for each decoded image. Default value is false.
+    /**
+     If true the received data is decoded while loading. Image manager calls `progressiveImageHandler` for each decoded level of image. Default value is false.
      
      You should also set `progressiveDecodingEnabled` on the `ImageLoaderConfiguration` to true.
      

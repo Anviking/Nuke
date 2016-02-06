@@ -77,11 +77,11 @@ public struct ImageLoaderConfiguration {
     public static var progressiveDecodingEnabled = true
 
     /**
-     The progress threshold at which decoder performs decoding passes. Default value is 0.15, which means that the received data will be decoded each time next 15% of total expected bytes are received.
+     The progress threshold at which decoder performs decoding passes. Default value is 0.1, which means that we exepect aroung 10 progressive levels.
      
      Progressive decoding is supported by JPEG, PNG and GIF image formats.  Each format supports different number of progressive levels. For instance, JPEG might might have a different number of progressive levels depending on the image. Image loader simply feeds the data to the decoder at given thresholds. The decoder then attempts to perform a decoding pass. As a result, some passes might produce the same output, and some progressive levels might be skipped. You should set this property to the value that works best for your images.
     */
-    public var progressiveDecodingThreshold: Double = 0.15
+    public var progressiveDecodingThreshold: Double = 0.1
 
     /**
      Initializes configuration with data loader and image decoder.
