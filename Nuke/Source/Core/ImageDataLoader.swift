@@ -101,6 +101,10 @@ public class ImageDataLoader: NSObject, NSURLSessionDataDelegate, ImageDataLoadi
             }
         }
     }
+
+    public func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, willCacheResponse proposedResponse: NSCachedURLResponse, completionHandler: (NSCachedURLResponse?) -> Void) {
+        completionHandler(nil)
+    }
 }
 
 private class DataTaskHandler {

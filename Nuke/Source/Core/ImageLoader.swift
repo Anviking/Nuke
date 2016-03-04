@@ -72,7 +72,7 @@ public struct ImageLoaderConfiguration {
 
     /** Determines whether the image loader should reuse NSURLSessionTasks for equivalent image requests. Default value is true.
      */
-    public var taskReusingEnabled = true
+    public var taskReusingEnabled = false
 
     @available(*, deprecated=2.2)
     public var congestionControlEnabled = true

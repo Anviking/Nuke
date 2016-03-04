@@ -15,8 +15,12 @@ class BasicDemoViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.photos = demoPhotosURLs
+
+        var photos = [NSURL]()
+        for _ in 1...1000 {
+            photos.appendContentsOf(demoPhotosURLs)
+        }
+        self.photos = photos
         
         self.collectionView?.backgroundColor = UIColor.whiteColor()
         self.collectionView?.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: cellReuseID)
@@ -54,7 +58,10 @@ class BasicDemoViewController: UICollectionViewController {
         let imageView = self.imageViewForCell(cell)
         imageView.image = nil
         let imageURL = self.photos[indexPath.row]
-        imageView.nk_setImageWith(imageURL)
+
+        var request = ImageRequest(URL: imageURL)
+        request.memoryCacheStorageAllowed = false
+        imageView.nk_setImageWith(request)
         
         return cell
     }
