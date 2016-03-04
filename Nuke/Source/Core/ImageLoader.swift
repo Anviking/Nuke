@@ -474,11 +474,10 @@ private class TaskQueue {
     
     func execute() {
         while self.pendingTasks.count > 0 && self.executingTasks.count < self.maxExecutingTaskCount {
-            let task = self.pendingTasks.lastObject! as! NSURLSessionTask
-            self.pendingTasks.removeObjectAtIndex(self.pendingTasks.count - 1)
+            let task = self.pendingTasks.firstObject! as! NSURLSessionTask
+            self.pendingTasks.removeObjectAtIndex(0)
             self.executingTasks.insert(task)
             task.resume()
-            print("execute \(task), pending: \(self.pendingTasks.count), executing: \(self.executingTasks.count)")
         }
     }
 }
