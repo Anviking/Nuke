@@ -351,6 +351,8 @@ private class DataTask {
 
 // MARK: TaskQueue
 
+var resumed = 0
+
 private class TaskQueue {
     var pendingTasks = NSMutableOrderedSet()
     var executingTasks = Set<NSURLSessionTask>()
@@ -387,6 +389,8 @@ private class TaskQueue {
             let task = pendingTasks.firstObject! as! NSURLSessionTask
             pendingTasks.removeObjectAtIndex(0)
             executingTasks.insert(task)
+            print("resume \(resumed)")
+            resumed += 1
             task.resume()
         }
     }
