@@ -47,7 +47,12 @@ extension NSOperationQueue {
         self.maxConcurrentOperationCount = maxConcurrentOperationCount
     }
     
-    func addBlock(block: (Void -> Void)) -> NSOperation {
+    func add<T where T: NSOperation>(operation: T) -> T {
+        self.addOperation(operation)
+        return operation
+    }
+    
+    func add(block: (Void -> Void)) -> NSOperation {
         let operation = NSBlockOperation(block: block)
         self.addOperation(operation)
         return operation
@@ -119,6 +124,28 @@ final class TaskQueue {
             executingTasks.insert(task)
             task.resume()
             setNeedsExecute()
+        }
+    }
+}
+
+
+// MARK: Operation
+
+class Operation: NSBlockOperation {
+    var tasks: Set<ImageTask>
+    
+    init<T: SequenceType where T.Generator.Element == ImageTask>(_ tasks: T, block: (Operation -> Void)) {
+        self.tasks = Set(tasks)
+        super.init()
+        self.addExecutionBlock { [unowned self] in
+            block(self)
+        }
+    }
+    
+    func unsubscribe(subscriber: ImageTask) {
+        tasks.remove(subscriber)
+        if tasks.count == 0 {
+            self.cancel()
         }
     }
 }

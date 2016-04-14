@@ -203,11 +203,11 @@ public class ImageLoader: ImageLoading {
         queue.async {
             if let cache = self.conf.cache {
                 // FIXME: Use better approach for managing tasks
-                self.loadStates[task] = .CacheLookup(self.conf.cachingQueue.addBlock { [weak self] in
+                self.loadStates[task] = .CacheLookup(self.conf.cachingQueue.add { [weak self] _ in
                     let data = cache.dataFor(task)
                     self?.queue.async {
                         if let data = data {
-                            self?.decodeData(data, task: task)
+                            self?.decodeData(data, tasks: Set(arrayLiteral: task))
                         } else {
                             guard self?.loadStates[task] != nil else { /* no longer registered */ return }
                             self?.loadDataFor(task)
@@ -269,32 +269,38 @@ public class ImageLoader: ImageLoading {
         
         removeDataTask(dataTask) // No more ImageTasks can register
 
-        if let data = data, response = response, cache = conf.cache {
-            conf.cachingQueue.addBlock {
+        if let data = data, response = response, cache = conf.cache where error == nil {
+            conf.cachingQueue.add { _ in
                 // FIXME: The fact that we use first image task is confusing, because there is no direct relation between DataTask reusing and on-disk caching (it's up to the user).
                 if let task = dataTask.registeredTasks.first {
                     cache.setData(data, response: response, forTask: task)
                 }
             }
         }
-
-        dataTask.registeredTasks.forEach {
-            if let data = data where error == nil {
-                decodeData(data, response: response, task: $0)
-            } else {
+        
+        if let data = data where error == nil {
+            decodeData(data, response: response, tasks: dataTask.registeredTasks)
+        } else {
+            dataTask.registeredTasks.forEach {
                 complete($0, image: nil, error: error)
             }
         }
     }
 
-    private func decodeData(data: NSData, response: NSURLResponse? = nil, task: ImageTask) {
-        guard loadStates[task] != nil else { /* no longer registered */ return }
-        loadStates[task] = .Decoding(conf.decodingQueue.addBlock { [weak self] in
+    private func decodeData(data: NSData, response: NSURLResponse? = nil, tasks: Set<ImageTask>) {
+        let tasks = tasks.filter { loadStates[$0] != nil }
+        guard tasks.count > 0 else { return }
+        let operation = conf.decodingQueue.add(Operation(tasks) { [weak self] operation in
             let image = self?.conf.decoder.decode(data, response: response)
             self?.queue.async {
-                self?.didDecodeImage(image, error: (image == nil ? errorWithCode(.DecodingFailed) : nil), task: task)
+                operation.tasks.forEach {
+                    self?.didDecodeImage(image, error: (image == nil ? errorWithCode(.DecodingFailed) : nil), task: $0)
+                }
             }
         })
+        tasks.forEach {
+            loadStates[$0] = .Decoding(operation)
+        }
     }
     
     private func didDecodeImage(image: Image?, error: ErrorType?, task: ImageTask) {
@@ -307,7 +313,7 @@ public class ImageLoader: ImageLoading {
     
     private func processImage(image: Image, processor: ImageProcessing, task: ImageTask) {
         guard loadStates[task] != nil else { /* no longer registered */ return }
-        loadStates[task] = .Processing(conf.processingQueue.addBlock { [weak self] in
+        loadStates[task] = .Processing(conf.processingQueue.add { [weak self] _ in
             let image = processor.process(image)
             self?.queue.async {
                 self?.complete(task, image: image, error: (image == nil ? errorWithCode(.ProcessingFailed) : nil))
@@ -332,7 +338,7 @@ public class ImageLoader: ImageLoading {
                         self.taskQueue.cancel(dataTask.URLSessionTask)
                         self.removeDataTask(dataTask) // No more ImageTasks can register
                     }
-                case .Decoding(let operation): operation.cancel()
+                case .Decoding(let operation): operation.unsubscribe(task)
                 case .Processing(let operation): operation.cancel()
                 }
                 self.loadStates[task] = nil // No longer registered
@@ -374,7 +380,7 @@ extension ImageLoader: ImageRequestKeyOwner {
 private enum ImageLoadState {
     case CacheLookup(NSOperation)
     case Loading(DataTask)
-    case Decoding(NSOperation)
+    case Decoding(Operation)
     case Processing(NSOperation)
 }
 
