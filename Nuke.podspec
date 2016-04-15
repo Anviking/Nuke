@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "Nuke"
-    s.version          = "2.2.0"
+    s.version          = "3.0.0"
     s.summary          = "Advanced Swift framework for loading, processing and caching images"
     s.description  = <<-EOS
     Advanced pure Swift framework for loading, caching, processing, displaying and preheating images.
@@ -19,8 +19,6 @@ Pod::Spec.new do |s|
     s.osx.deployment_target = "10.9"
     s.tvos.deployment_target = "9.0"
 
-    s.source_files  = "Source/Core/**/*"
-    s.ios.source_files = "Source/UI/**/*"
-    s.tvos.source_files = "Source/UI/**/*"
-    s.osx.source_files = "Source/UI/{ImageLoadingView,ImageLoadingViewExtensions,ImageViewLoadingController}.swift"
+    s.source_files  = "Sources/**/*"
+    s.watchos.exclude_files = "Sources/ImageLoadingView.swift"
 end

@@ -1,14 +1,12 @@
-<p align="left"><img src="https://cloud.githubusercontent.com/assets/1567433/13362579/7001aa94-dcd6-11e5-8c0d-5a4920008d04.png" height="150"/>
+<p align="center"><img src="https://cloud.githubusercontent.com/assets/1567433/13918338/f8670eea-ef7f-11e5-814d-f15bdfd6b2c0.png" height="180"/>
 
-<p align="left">
+<p align="center">
 <a href="https://cocoapods.org"><img src="https://img.shields.io/cocoapods/v/Nuke.svg"></a>
 <a href="https://github.com/Carthage/Carthage"><img src="https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat"></a>
 <a href="http://cocoadocs.org/docsets/Nuke"><img src="https://img.shields.io/cocoapods/p/Nuke.svg?style=flat)"></a>
 </p>
 
-Loading, processing, caching and [**preheating**](http://outscope.net/blog/image-preheating) images.
-
-To get started check out http://kean.github.io/Nuke/ !
+Loading, processing, caching and [**preheating**](http://outscope.net/blog/image-preheating) images. To get started check out http://kean.github.io/Nuke
 
 ```swift
 var request = ImageRequest(URL: NSURL(string: "http://..."))
@@ -23,43 +21,28 @@ Nuke.taskWith(request) { response in
 ## <a name="h_features"></a>Features
 
 - User-friendly API, zero configuration required
-- Performant, asynchronous and thread safe
+- Performant, asynchronous, thread safe
 - Nuke is a [pipeline](#h_design) with injectable dependencies
-- Optional [Alamofire](https://github.com/kean/Nuke-Alamofire-Plugin) and [AnimatedImage](https://github.com/kean/Nuke-AnimatedImage-Plugin) plugins
-- Beautiful [playground](https://cloud.githubusercontent.com/assets/1567433/10491357/057ac246-72af-11e5-9c60-6f30e0ea9d52.png), and [complete documentation](#h_documentation) included
-
-##### Loading
-
-- Uses [NSURLSession](https://developer.apple.com/library/ios/documentation/Foundation/Reference/NSURLSession_class/) with [HTTP/2](https://en.wikipedia.org/wiki/HTTP/2) support
-- A single data task is used for multiple equivalent requests
-- [Automated preheating](http://outscope.net/blog/image-preheating) of images close to the viewport
-- Prevents trashing the system with requests during fast scrolling
-- Full featured extensions for UI components
-
-##### Caching
-
-- [Doesn't reinvent caching](http://outscope.net/blog/image-caching), relies on HTTP cache in URL Loading System
-- Two cache layers including auto purging memory cache
-- Intelligent control over memory cache
-
-##### Processing
-
+- [Alamofire](https://github.com/kean/Nuke-Alamofire-Plugin) and [FLAnimatedImage](https://github.com/kean/Nuke-AnimatedImage-Plugin) plugins
+- Extensions for UI components
+- Two [cache layers](http://outscope.net/blog/image-caching) including auto purging memory cache
+- Protocol for integrating any third-party caching library
+- Automates image [preheating (precaching)](http://outscope.net/blog/image-preheating)
 - Create, compose and apply image filters
-- [Core Image](https://developer.apple.com/library/mac/documentation/GraphicsImaging/Conceptual/CoreImaging/ci_intro/ci_intro.html) integration
-- Background image decompression and scaling in a single step
-- Resize loaded images to [fit displayed size](https://developer.apple.com/library/ios/qa/qa1708/_index.html)
+- Background image decompression
+- Simple [Core Image](https://github.com/kean/Nuke/wiki/Core-Image-Integration-Guide) integration
 
 ## <a name="h_requirements"></a>[Requirements](https://github.com/kean/Nuke/wiki/Supported-Platforms)
 
 - iOS 8.0+ / watchOS 2.0+ / OS X 10.9+ / tvOS 9.0+
-- Xcode 7.1+, Swift 2.0+
+- Xcode 7.3+, Swift 2.2+
 
 ## <a name="h_getting_started"></a>Getting Started
 
-- Best place to get started is http://kean.github.io/Nuke/
+- Best place to get started is http://kean.github.io/Nuke
 - Get a demo project using `pod try Nuke` command
 - Experiment with Nuke in a [playground](https://cloud.githubusercontent.com/assets/1567433/10491357/057ac246-72af-11e5-9c60-6f30e0ea9d52.png)
-- [Install](#installation), `import Nuke` and enjoy!
+- [Install](#installation) and `import Nuke`
 
 ## <a name="h_documentation"></a>Documentation
 
@@ -82,7 +65,7 @@ Nuke.taskWith(NSURL(URL: "http://...")!) {
 
 #### Adding Request Options
 
-Each `ImageTask` object is created with an `ImageRequest` struct which contains request parameters. An `ImageRequest` itself can be initialized either with `NSURL` or `NSURLRequest`.
+Each `ImageTask` is created with an `ImageRequest` which contains request parameters. An `ImageRequest` can be initialized either with `NSURL` or `NSURLRequest`.
 
 ```swift
 var request = ImageRequest(URLRequest: NSURLRequest(NSURL(URL: "http://...")!))
@@ -108,7 +91,7 @@ Nuke.taskWith(request) {
 }.resume()
 ```
 
-Processed images are stored into memory cache for fast access. Next time you start the equivalent request the completion closure will be called synchronously.
+Processed images are stored into memory cache. Next time you start the same request the completion will be called synchronously.
 
 #### Using Image Response
 
@@ -118,7 +101,6 @@ The response passed into the completion closure is represented by an `ImageRespo
 Nuke.taskWith(request) { response in
     switch response {
     case let .Success(image, info):
-        // Use image and inspect info
         if (info.isFastResponse) {
             // Image was returned from the memory cache
         }
@@ -160,19 +142,18 @@ task.completion {
 
 #### Using UI Extensions
 
-Nuke provides full-featured UI extensions to make image loading as simple as possible.
+Nuke provides UI extensions to make image loading as simple as possible.
 
 ```swift
 let imageView = UIImageView()
 
 // Loads and displays an image for the given URL
 // Previously started requests are cancelled
-// Uses ImageContentMode.AspectFill and current view size as a target size
 let task = imageView.nk_setImageWith(NSURL(URL: "http://...")!)
 // let task = imageView.nk_setImageWith(ImageRequest(...))
 ```
 
-You have some extra control over loading via `ImageViewLoadingOptions`. If allows you to provide custom `animations`, or completely override the completion `handler`.
+You have extra control over loading via `ImageViewLoadingOptions`. If allows you to provide custom `animations`, override the completion `handler`, etc.
 
 ```swift
 let imageView = UIImageView()
@@ -188,16 +169,15 @@ let task = imageView.nk_setImageWith(request, options: )
 
 #### Adding UI Extensions
 
-Nuke makes it extremely easy to add image loading extensions to custom UI components. Those methods are provided by `ImageLoadingView` protocol. This protocol is actually a trait - most of its methods are already implemented. All you need to do is to implement one required method to make your custom views conform to `ImageLoadingView` protocol.
+Nuke makes it extremely easy to add image loading extensions to custom UI components. Those methods are provided by `ImageLoadingView` protocol. This protocol is actually a trait - most of methods are already implemented. All you need is to implement one required method to make your custom views conform to `ImageLoadingView` protocol.
 
 You can do so by either implementing `ImageDisplayingView` protocol:
 
 ```swift
 extension MKAnnotationView: ImageDisplayingView, ImageLoadingView {
     // That's it, you get default implementation of all methods in ImageLoadingView protocol
-    public var nk_image: UIImage? {
-        get { return self.image }
-        set { self.image = newValue }
+    public func nk_displayImage(image: Image?) {
+        self.image = image
     }
 }
 ```
@@ -214,7 +194,7 @@ extension MKAnnotationView: ImageLoadingView {
 
 #### UICollection(Table)View
 
-Sometimes you need to display a collection of images, which is a quite complex task when it comes to managing which tasks are associated with which cells, cancelling and handling those tasks, etc. Nuke takes care of all the complexity for you:
+When you display a collection of images it becomes quite tedious to manage tasks associated with image cells. Nuke takes care of all the complexity for you:
 
 ```swift
 func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
@@ -226,18 +206,9 @@ func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath ind
 }
 ```
 
-Optional: you can also cancel image tasks as soon as the cells go offscreen:
-
-```swift
-func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
-    let imageView: ImageView = <#view#>
-    imageView.nk_cancelLoading()
-}
-```
-
 #### Applying Filters
 
-Nuke defines a simple `ImageProcessing` protocol that represents image filters. Some filters are already built into the framework. And it task just a couple line of code to create your own filters. You can also compose multiple filters together using `ImageProcessorComposition` class.
+Nuke defines a simple `ImageProcessing` protocol that represents image filters. It takes just a couple line of code to create your own filters. You can also compose multiple filters together using `ImageProcessorComposition` class.
 
 ```swift
 let filter1: ImageProcessing = <#filter#>
@@ -254,7 +225,7 @@ Nuke.taskWith(request) {
 
 #### Creating Filters
 
-`ImageProcessing` protocol consists of two methods: one to process the image and one to compare two (heterogeneous) filters. Here's an example of custom image filter implemented on top of [Core Image](https://github.com/kean/Nuke/wiki/Core-Image-Integration-Guide). It uses some of the helper functions provided by Nuke that simplify work with `Core Image`.
+`ImageProcessing` protocol consists of two methods: one to process the image and one to compare two (heterogeneous) filters. Here's an example of custom image filter that uses [Core Image](https://developer.apple.com/library/mac/documentation/GraphicsImaging/Conceptual/CoreImaging/ci_intro/ci_intro.html). For more info see [Core Image Integration Guide](https://github.com/kean/Nuke/wiki/Core-Image-Integration-Guide).
 
 ```swift
 public class ImageFilterGaussianBlur: ImageProcessing {
@@ -264,12 +235,12 @@ public class ImageFilterGaussianBlur: ImageProcessing {
     }
 
     public func process(image: UIImage) -> UIImage? {
-        return image.nk_filter(CIFilter(name: "CIGaussianBlur", withInputParameters: ["inputRadius" : self.radius]))
+        // The `applyFilter` function is not shipped with Nuke.
+        return image.applyFilter(CIFilter(name: "CIGaussianBlur", withInputParameters: ["inputRadius" : self.radius]))
     }
 }
 
-// We need to be able to compare filters for equivalence to cache processed images
-// Default implementation returns `true` if both filters are of the same class
+// We need to compare filters to identify cached images
 public func ==(lhs: ImageFilterGaussianBlur, rhs: ImageFilterGaussianBlur) -> Bool {
     return lhs.radius == rhs.radius
 }
@@ -277,7 +248,7 @@ public func ==(lhs: ImageFilterGaussianBlur, rhs: ImageFilterGaussianBlur) -> Bo
 
 #### Preheating Images
 
-[Preheating](http://kean.github.io/blog/programming/2015/12/12/image-preheating.html) is an effective way to improve user experience in applications that display collections of images. Preheating means loading and caching images that might soon appear on the display. Nuke provides a set of self-explanatory methods for image preheating which are inspired by [PHImageManager](https://developer.apple.com/library/prerelease/ios/documentation/Photos/Reference/PHImageManager_Class/index.html):
+[Preheating](http://outscope.net/blog/image-preheating) is an effective way to improve user experience in applications that display collections of images. Preheating means loading and caching images that might soon appear on the display. Nuke provides a set of self-explanatory methods for image preheating which are inspired by [PHImageManager](https://developer.apple.com/library/prerelease/ios/documentation/Photos/Reference/PHImageManager_Class/index.html):
 
 ```swift
 let requests = [ImageRequest(URL: imageURL1), ImageRequest(URL: imageURL2)]
@@ -287,10 +258,10 @@ Nuke.stopPreheatingImages(requests: requests)
 
 #### Automating Preheating
 
-Nuke automates a process of determining which images in a `UICollectionView` (or `UITableView`) to preheat and when to start and stop preheating them. There are two corresponding classes (one for `UICollectionView`, one for `UITableView`). For more info about them see [Image Preheating Guide](http://kean.github.io/blog/programming/2015/12/12/image-preheating.html).
+Nuke can be used in conjuction with [Preheat](https://github.com/kean/Preheat) package which automates precaching of content in `UICollectionView` and `UITableView`. For more info see [Image Preheating Guide](http://outscope.net/blog/image-preheating), Nuke's demo project, and [Preheat](https://github.com/kean/Preheat) documentation.
 
 ```swift
-let preheater = ImagePreheatingControllerForCollectionView(collectionView: <#collectionView#>)
+let preheater = PreheatControllerForCollectionView(collectionView: <#collectionView#>)
 preheater.delegate = self // Signals when preheat index paths change
 ```
 
@@ -300,15 +271,17 @@ Nuke provides both on-disk and in-memory caching.
 
 For on-disk caching it relies on `NSURLCache`. The `NSURLCache` is used to cache original image data downloaded from the server. This class a part of the URL Loading System's cache management, which relies on HTTP cache.
 
+As an alternative to `NSURLCache` `Nuke` provides an `ImageDiskCaching` protocol that allows you to easily integrate any third-party caching library.
+
 For on-memory caching Nuke provides `ImageMemoryCaching` protocol and its implementation in `ImageMemoryCache` class built on top of `NSCache`. The `ImageMemoryCache` is used for fast access to processed images that are ready for display.
 
 The combination of two cache layers results in a high performance caching system. For more info see [Image Caching Guide](http://outscope.net/blog/image-caching) which provides a comprehensive look at HTTP cache, URL Loading System and NSCache.
 
 #### Accessing Memory Cache
 
-Nuke automatically leverages both its cache layers. It accesses in-memory cache each time you start an `ImageTask` and calls a completion closure synchronously if the appropriate image is found.
+Nuke automatically leverages both its cache layers. It accesses in-memory cache each time you start an `ImageTask` and calls a completion closure synchronously if the image is found.
 
-If you need to access memory cache directly you might use the appropriate `ImageManager` methods:
+If you need to access memory cache directly you can use `ImageManager`:
 
 ```swift
 let manager = ImageManager.shared
@@ -322,13 +295,14 @@ let cachedResponse = manager.cachedResponseForRequest(request)
 
 #### Customizing Image Manager
 
- One of the great things about Nuke is that it is [a pipeline](https://github.com/kean/Nuke#h_design) that loads images using injectable dependencies. There are there protocols that you can use to customize that pipeline:
+ One of the great things about Nuke is that it is [a pipeline](https://github.com/kean/Nuke#h_design) that loads images using injectable dependencies. These protocols are used to customize that pipeline:
 
 |Protocol|Description|
 |--------|-----------|
 |`ImageDataLoading`|Performs loading of image data (`NSData`)|
 |`ImageDecoding`|Decodes `NSData` to `UIImage` objects|
 |`ImageMemoryCaching`|Stores processed images into memory cache|
+|`ImageDiskCaching`|Stores data into disk cache|
 
 <br>
 You can either provide your own implementation of these protocols or customize existing classes that implement them. After you have all the dependencies in place you can create an `ImageManager`:
@@ -342,7 +316,7 @@ let configuration = ImageManagerConfiguration(dataLoader: dataLoader, decoder: d
 ImageManager.shared = ImageManager(configuration: configuration)
 ```
 
-Even if those protocols are not enough, you can take a look at the `ImageLoading` protocol. It provides a high level API for loading images for concrete `ImageTasks`. This protocol is implemented by the `ImageLoader` class that defines a common flow of loading images (`load data` -> `decode` -> `process`) and uses the corresponding `ImageDataLoading`, `ImageDecoding` and `ImageProcessing` protocols.
+If even those protocols are not enough, you can take a look at the `ImageLoading` protocol. It provides a high level API for loading images. This protocol is implemented by the `ImageLoader` class that defines a common flow of loading images (`load data` -> `decode` -> `process`) and uses the corresponding `ImageDataLoading`, `ImageDiskCaching`, `ImageDecoding` and `ImageProcessing` protocols.
 
 ```swift
 let loader: ImageLoading = <#loader#>
@@ -365,6 +339,7 @@ ImageManager.shared = ImageManager(configuration: configuration)
 |`ImageDecoding`|Converts `NSData` to `UIImage` objects|
 |`ImageProcessing`|Processes decoded images|
 |`ImageMemoryCaching`|Stores processed images into memory cache|
+|`ImageDiskCaching`|Stores data into disk cache|
 
 ## Installation<a name="installation"></a>
 
@@ -404,17 +379,9 @@ import NukeAnimatedImagePlugin
 
 ## <a name="h_satellite_projects"></a>Satellite Projects
 
+- [Preheat](https://github.com/kean/Preheat) - Automates preheating (precaching) of content in UITableView and UICollectionView
 - [Nuke Alamofire Plugin](https://github.com/kean/Nuke-Alamofire-Plugin) - Alamofire plugin for Nuke that allows you to use Alamofire for networking
 - [Nuke AnimatedImage Plugin](https://github.com/kean/Nuke-AnimatedImage-Plugin) - FLAnimatedImage plugin for Nuke that allows you to load and display animated GIFs
-- [Nuke Integration Tests](https://github.com/kean/Nuke-Integration-Tests) - Contains CocoaPods and Carthage integration tests for Nuke
-
-## <a name="h_donations"></a>Donations
-
-This project has taken hundreds hours of work. If you find it useful, you can chip in for coffee to keep me going.
-
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=B257REANNAAL6"><img height="30" src="https://cloud.githubusercontent.com/assets/1567433/12656493/a1b6075c-c60f-11e5-85a7-0f0c4dea27ed.gif"></a>
-
-> *Alternatively, <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8VLXL699RFRY2">donate in ₽*</a>
 
 ## Contacts
 

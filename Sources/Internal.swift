@@ -13,6 +13,8 @@
 #endif
 
 
+// MARK: Error Handling
+
 func errorWithCode(code: ImageManagerErrorCode) -> NSError {
     func reason() -> String {
         switch code {
@@ -33,9 +35,7 @@ func dispathOnMainThread(closure: (Void) -> Void) {
 }
 
 extension dispatch_queue_t {
-    func async(block: (Void -> Void)) {
-        dispatch_async(self, block)
-    }
+    func async(block: (Void -> Void)) { dispatch_async(self, block) }
 }
 
 
@@ -57,8 +57,12 @@ extension NSOperationQueue {
 
 // MARK: TaskQueue
 
+public let SessionTaskDidResumeNotification = "com.github.kean.nuke.sessionTaskDidResume"
+public let SessionTaskDidCancelNotification = "com.github.kean.nuke.sessionTaskDidCancel"
+public let SessionTaskDidCompleteNotification = "com.github.kean.nuke.sessionTaskDidComplete"
+
 /// Limits number of concurrent tasks, prevents trashing of NSURLSession
-class TaskQueue {
+final class TaskQueue {
     var maxExecutingTaskCount = 8
     var congestionControlEnabled = true
     
@@ -84,6 +88,7 @@ class TaskQueue {
         } else if executingTasks.contains(task) {
             executingTasks.remove(task)
             task.cancel()
+            NSNotificationCenter.defaultCenter().postNotificationName(SessionTaskDidCancelNotification, object: task)
             setNeedsExecute()
         }
     }
@@ -93,6 +98,7 @@ class TaskQueue {
             pendingTasks.removeObject(task)
         } else if executingTasks.contains(task) {
             executingTasks.remove(task)
+            NSNotificationCenter.defaultCenter().postNotificationName(SessionTaskDidCompleteNotification, object: task)
             setNeedsExecute()
         }
     }
@@ -118,6 +124,7 @@ class TaskQueue {
             pendingTasks.removeObjectAtIndex(0)
             executingTasks.insert(task)
             task.resume()
+            NSNotificationCenter.defaultCenter().postNotificationName(SessionTaskDidResumeNotification, object: task)
             setNeedsExecute()
         }
     }
