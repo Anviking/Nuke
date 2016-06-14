@@ -35,7 +35,7 @@ class ImageMemoryCacheTest: XCTestCase {
         self.expect { fulfill in
             self.manager.taskWith(request) {
                 switch $0 {
-                case .Success(_, let info):
+                case .success(_, let info):
                     XCTAssertFalse(info.isFastResponse)
                 default: XCTFail()
                 }
@@ -52,7 +52,7 @@ class ImageMemoryCacheTest: XCTestCase {
         var isCompletionCalled = false
         self.manager.taskWith(request) {
             switch $0 {
-            case .Success(_, let info):
+            case .success(_, let info):
                 XCTAssertTrue(info.isFastResponse)
             default: XCTFail()
             }
@@ -78,7 +78,7 @@ class ImageMemoryCacheTest: XCTestCase {
         var isCompletionCalled = false
         self.manager.taskWith(request) {
             switch $0 {
-            case .Success(_, let info):
+            case .success(_, let info):
                 XCTAssertTrue(info.isFastResponse)
             default: XCTFail()
             }
@@ -111,7 +111,7 @@ class ImageMemoryCacheTest: XCTestCase {
         
         let request1 = ImageRequest(URL: defaultURL)
         var request2 = ImageRequest(URL: defaultURL)
-        request2.memoryCachePolicy = .ReloadIgnoringCachedImage
+        request2.memoryCachePolicy = .reloadIgnoringCachedImage
         
         // responseForRequest should ignore ImageRequestMemoryCachePolicy
         XCTAssertNotNil(self.manager.responseForRequest(request1))
@@ -120,7 +120,7 @@ class ImageMemoryCacheTest: XCTestCase {
         var isCompletionCalled = false
         self.manager.taskWith(request1) {
             switch $0 {
-            case .Success(_, let info):
+            case .success(_, let info):
                 XCTAssertTrue(info.isFastResponse)
             default: XCTFail()
             }
@@ -132,7 +132,7 @@ class ImageMemoryCacheTest: XCTestCase {
         self.expect { fulfill in
             self.manager.taskWith(request2) {
                 switch $0 {
-                case .Success(_, let info):
+                case .success(_, let info):
                     XCTAssertFalse(info.isFastResponse)
                 default: XCTFail()
                 }
@@ -153,7 +153,7 @@ class ImageMemoryCacheTest: XCTestCase {
         self.expect { fulfill in
             self.manager.taskWith(request) {
                 switch $0 {
-                case .Success(_, let info):
+                case .success(_, let info):
                     XCTAssertFalse(info.isFastResponse)
                 default: XCTFail()
                 }

@@ -15,7 +15,7 @@ extension Image {
             return (objc_getAssociatedObject(self, &AssociatedKeys.ProcessorIDs) as? [String]) ?? [String]()
         }
         set {
-            objc_setAssociatedObject(self, &AssociatedKeys.ProcessorIDs, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &AssociatedKeys.ProcessorIDs, newValue, .objc_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
 }
@@ -29,7 +29,7 @@ class MockImageProcessor: ImageProcessing {
     init(ID: String) {
         self.ID = ID
     }
-    func process(image: Image) -> Image? {
+    func process(_ image: Image) -> Image? {
         var processorIDs: [String] = image.nk_test_processorIDs
         processorIDs.append(self.ID)
         let processedImage = Image()
@@ -43,7 +43,7 @@ func ==(lhs: MockImageProcessor, rhs: MockImageProcessor) -> Bool {
 }
 
 class MockParameterlessImageProcessor: ImageProcessing {
-    func process(image: Image) -> Image? {
+    func process(_ image: Image) -> Image? {
         return image
     }
 }

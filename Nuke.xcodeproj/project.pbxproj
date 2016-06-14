@@ -489,9 +489,11 @@
 					};
 					0C7C06761BCA882A00089D7F = {
 						CreatedOnToolsVersion = 7.0.1;
+						LastSwiftMigration = 0800;
 					};
 					0C91748F1BAE99EE004A7905 = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0800;
 					};
 					0CC345961BD96CFE005C2DD8 = {
 						CreatedOnToolsVersion = 7.1;
@@ -856,6 +858,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.kean.Nuke-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -867,6 +870,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.kean.Nuke-Tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -976,6 +980,7 @@
 				PRODUCT_NAME = Nuke;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -995,6 +1000,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.kean.Nuke;
 				PRODUCT_NAME = Nuke;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
