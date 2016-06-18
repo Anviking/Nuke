@@ -96,7 +96,7 @@ public extension ImageLoadingView {
         let loader = ImageViewLoadingController { [weak self] in
             self?.nk_imageTask($0, didFinishWithResponse: $1, options: $2)
         }
-        objc_setAssociatedObject(self, &AssociatedKeys.LoadingController, loader, .objc_ASSOCIATION_RETAIN_NONATOMIC)
+        objc_setAssociatedObject(self, &AssociatedKeys.LoadingController, loader, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         return loader
     }
 }

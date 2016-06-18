@@ -17,7 +17,7 @@ class ImageMemoryCacheTest: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        self.mockMemoryCache = MockImageMemoryCache()
+        self.mockMemoryCache = MockImageMemoryCache<AnyObject, AnyObject>()
         self.mockSessionManager = MockImageDataLoader()
         self.manager = ImageManager(configuration: ImageManagerConfiguration(dataLoader: self.mockSessionManager, cache: self.mockMemoryCache))
     }

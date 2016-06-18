@@ -62,7 +62,7 @@ public class ImageMemoryCache: ImageMemoryCaching {
 
     /// Initializes cache with the recommended cache total limit.
     public convenience init() {
-        let cache = Cache()
+        let cache = Cache<AnyObject, AnyObject>()
         cache.totalCostLimit = ImageMemoryCache.recommendedCostLimit()
         #if os(OSX)
             cache.countLimit = 100

@@ -18,7 +18,7 @@ class ImageProcessingTest: XCTestCase {
         super.setUp()
 
         self.mockSessionManager = MockImageDataLoader()
-        self.mockMemoryCache = MockImageMemoryCache()
+        self.mockMemoryCache = MockImageMemoryCache<AnyObject, AnyObject>()
         
         self.mockSessionManager = MockImageDataLoader()
         let loaderConfiguration = ImageLoaderConfiguration(dataLoader: self.mockSessionManager)

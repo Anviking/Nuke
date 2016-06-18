@@ -34,10 +34,6 @@ func dispathOnMainThread(_ closure: (Void) -> Void) {
     Thread.isMainThread() ? closure() : DispatchQueue.main.async(execute: closure)
 }
 
-extension DispatchQueue {
-    func async(_ block: ((Void) -> Void)) { self.async(execute: block) }
-}
-
 
 // MARK: NSOperationQueue Extensions
 
