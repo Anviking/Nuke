@@ -31,7 +31,7 @@ func errorWithCode(_ code: ImageManagerErrorCode) -> NSError {
 // MARK: GCD
 
 func dispathOnMainThread(_ closure: (Void) -> Void) {
-    Thread.isMainThread() ? closure() : DispatchQueue.main.async(execute: closure)
+    Thread.isMainThread ? closure() : DispatchQueue.main.async(execute: closure)
 }
 
 
@@ -84,7 +84,7 @@ final class TaskQueue {
         } else if executingTasks.contains(task) {
             executingTasks.remove(task)
             task.cancel()
-            NotificationCenter.default().post(name: Notification.Name(rawValue: SessionTaskDidCancelNotification), object: task)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: SessionTaskDidCancelNotification), object: task)
             setNeedsExecute()
         }
     }
@@ -94,7 +94,7 @@ final class TaskQueue {
             pendingTasks.remove(task)
         } else if executingTasks.contains(task) {
             executingTasks.remove(task)
-            NotificationCenter.default().post(name: Notification.Name(rawValue: SessionTaskDidCompleteNotification), object: task)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: SessionTaskDidCompleteNotification), object: task)
             setNeedsExecute()
         }
     }
@@ -120,7 +120,7 @@ final class TaskQueue {
             pendingTasks.removeObject(at: 0)
             executingTasks.insert(task)
             task.resume()
-            NotificationCenter.default().post(name: Notification.Name(rawValue: SessionTaskDidResumeNotification), object: task)
+            NotificationCenter.default.post(name: Notification.Name(rawValue: SessionTaskDidResumeNotification), object: task)
             setNeedsExecute()
         }
     }

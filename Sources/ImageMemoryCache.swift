@@ -43,7 +43,7 @@ public class ImageCachedResponse {
 public class ImageMemoryCache: ImageMemoryCaching {
     deinit {
         #if os(iOS) || os(tvOS)
-            NotificationCenter.default().removeObserver(self, name: NSNotification.Name.UIApplicationDidReceiveMemoryWarning, object: nil)
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIApplicationDidReceiveMemoryWarning, object: nil)
         #endif
     }
     
@@ -56,7 +56,7 @@ public class ImageMemoryCache: ImageMemoryCaching {
     public init(cache: Cache<AnyObject, AnyObject>) {
         self.cache = cache
         #if os(iOS) || os(tvOS)
-            NotificationCenter.default().addObserver(self, selector: #selector(ImageMemoryCache.didReceiveMemoryWarning(_:)), name: NSNotification.Name.UIApplicationDidReceiveMemoryWarning, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(ImageMemoryCache.didReceiveMemoryWarning(_:)), name: NSNotification.Name.UIApplicationDidReceiveMemoryWarning, object: nil)
         #endif
     }
 
@@ -72,7 +72,7 @@ public class ImageMemoryCache: ImageMemoryCaching {
     
     /// Returns recommended cost limit in bytes.
     public class func recommendedCostLimit() -> Int {
-        let physicalMemory = ProcessInfo.processInfo().physicalMemory
+        let physicalMemory = ProcessInfo.processInfo.physicalMemory
         let ratio = physicalMemory <= (1024 * 1024 * 512 /* 512 Mb */) ? 0.1 : 0.2
         let limit = physicalMemory / UInt64(1 / ratio)
         return limit > UInt64(Int.max) ? Int.max : Int(limit)

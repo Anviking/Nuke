@@ -181,11 +181,8 @@ public class ImageViewLoadingController {
     /// Cancels current task.
     public func cancelLoading() {
         if let task = imageTask {
+            task.cancel()
             imageTask = nil
-            // Cancel task after delay to allow new tasks to subscribe to the existing NSURLSessionTask.
-            DispatchQueue.main.async {
-                task.cancel()
-            }
         }
     }
     

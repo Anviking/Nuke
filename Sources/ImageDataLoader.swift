@@ -41,7 +41,7 @@ public class ImageDataLoader: NSObject, URLSessionDataDelegate, ImageDataLoading
 
     /// Initializes the receiver with a default NSURLSession configuration and NSURLCache with memory capacity set to 0, disk capacity set to 200 Mb.
     public convenience override init() {
-        let conf = URLSessionConfiguration.default()
+        let conf = URLSessionConfiguration.default
         conf.urlCache = URLCache(memoryCapacity: 0, diskCapacity: (200 * 1024 * 1024), diskPath: "com.github.kean.nuke-cache")
         self.init(sessionConfiguration: conf)
     }
